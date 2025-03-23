@@ -33,7 +33,7 @@ export function BudgetProgress({ initialBudget, currentExpenses }: {
     error,
   } = useFetch(updateBudget);
 
-  const percentUsed = initialBudget
+  const percentUsed = initialBudget?.amount
     ? (currentExpenses / initialBudget.amount) * 100
     : 0;
 

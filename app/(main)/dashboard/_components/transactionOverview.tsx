@@ -22,6 +22,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Account, Transaction } from "@prisma/client";
+import EmptyState from "@/components/EmptyState";
+import { Receipt, Wallet } from "lucide-react";
 
 const COLORS = [
   "#FF6B6B",
@@ -87,7 +89,7 @@ export function DashboardOverview({
   );
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-8">
       {/* Recent Transactions Card */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -113,9 +115,16 @@ export function DashboardOverview({
         <CardContent>
           <div className="space-y-4">
             {recentTransactions.length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">
-                No recent transactions
-              </p>
+              <EmptyState
+                icon={Receipt}
+                title="No Transactions Yet"
+                description="Start tracking your finances by adding your first transaction"
+                action={{
+                  label: "Add Transaction",
+                  href: "/transaction/create",
+                }}
+                className="py-8"
+              />
             ) : (
               recentTransactions.map((transaction) => (
                 <div
@@ -163,9 +172,16 @@ export function DashboardOverview({
         </CardHeader>
         <CardContent className="p-0 pb-5">
           {pieChartData.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">
-              No expenses this month
-            </p>
+            <EmptyState
+              icon={Wallet}
+              title="No Expenses This Month"
+              description="Add your first expense to see the breakdown"
+              action={{
+                label: "Add Expense",
+                href: "/transaction/create",
+              }}
+              className="py-8"
+            />
           ) : (
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">

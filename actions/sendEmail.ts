@@ -29,7 +29,7 @@ export async function sendEmail({
   const resend = new Resend(process.env.RESEND_API_KEY || "");
   try {
     const data = await resend.emails.send({
-      from: "CoinInventory <onboarding@resend.dev>",
+      from: "BalanceBoard <onboarding@resend.dev>",
       to,
       subject,
       react,

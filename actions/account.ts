@@ -148,3 +148,58 @@ export async function bulkDeleteTransactions(transactionIds: string[]) {
     return { success: false, error: error.message };
   }
 }
+
+export async function deleteAccount(accountId: string) {
+  try {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+      include: {
+        accounts: true,
+      },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const accounts = user.accounts;
+    const account = accounts.find((a) => a.id === accountId);
+
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    if (accounts.length <= 1) {
+      return {
+        success: false,
+        code: "ONLY_ACCOUNT",
+        message: "You must create another account before deleting the only account.",
+      };
+    }
+
+    if (account.isDefault) {
+      return {
+        success: false,
+        code: "DEFAULT_ACCOUNT",
+        message: "Set another account as default before deleting this one.",
+      };
+    }
+
+    await db.account.delete({
+      where: {
+        id: accountId,
+        userId: user.id,
+      },
+    });
+
+    // Transactions for this account are deleted automatically via onDelete: Cascade
+    revalidatePath("/dashboard");
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}

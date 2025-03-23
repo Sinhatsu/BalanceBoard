@@ -55,6 +55,8 @@ import useFetch from "@/hooks/use-fetch";
 import { BarLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
 import { Transaction } from "@prisma/client";
+import EmptyState from "@/components/EmptyState";
+import { FileText } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -345,11 +347,31 @@ export function TransactionTable({
           <TableBody>
             {paginatedTransactions.length === 0 ? (
               <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="text-center text-muted-foreground"
-                >
-                  No transactions found
+                <TableCell colSpan={7} className="h-[400px]">
+                  <EmptyState
+                    icon={FileText}
+                    title={
+                      searchTerm || typeFilter || recurringFilter
+                        ? "No transactions match your filters"
+                        : "No transactions yet"
+                    }
+                    description={
+                      searchTerm || typeFilter || recurringFilter
+                        ? "Try adjusting your search criteria"
+                        : "Start by adding your first transaction"
+                    }
+                    action={
+                      searchTerm || typeFilter || recurringFilter
+                        ? {
+                            label: "Clear Filters",
+                            onClick: handleClearFilters,
+                          }
+                        : {
+                            label: "Add Transaction",
+                            href: "/transaction/create",
+                          }
+                    }
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -393,7 +415,7 @@ export function TransactionTable({
                           <TooltipTrigger>
                             <Badge
                               variant="secondary"
-                              className="gap-1 bg-purple-100 text-purple-700 hover:bg-purple-200"
+                              className="gap-1 bg-primary/10 text-primary hover:bg-primary/20"
                             >
                               <RefreshCw className="h-3 w-3" />
                               {transaction.recurringInterval

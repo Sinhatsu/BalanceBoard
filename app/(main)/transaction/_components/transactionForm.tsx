@@ -6,7 +6,7 @@ import CreateAccount from "@/components/CreateAccount";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -19,7 +19,6 @@ import { Category } from "@/data/categories";
 import useFetch from "@/hooks/use-fetch";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PopoverContent } from "@radix-ui/react-popover";
 import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -96,6 +95,7 @@ const AddTransactionForm = ({
   );
 
   const onSubmit = (data: any) => {
+    console.log(data);
     const formData = {
       ...data,
       amount: parseFloat(data.amount),
@@ -143,37 +143,72 @@ const AddTransactionForm = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Type</label>
-        <Select
-          onValueChange={(value) => setValue("type", value)}
-          defaultValue={type}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="EXPENSE">Expense</SelectItem>
-            <SelectItem value="INCOME">Income</SelectItem>
-          </SelectContent>
-        </Select>
-        {errors && errors.type && (
-          <p className="text-sm text-red-500">{String(errors.type.message)}</p>
-        )}
-      </div>
+
       <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Type</label>
+          <Select
+            onValueChange={(value) => setValue("type", value)}
+            defaultValue={type}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="EXPENSE">Expense</SelectItem>
+              <SelectItem value="INCOME">Income</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors && errors.type && (
+            <p className="text-sm text-red-500">{String(errors.type.message)}</p>
+          )}
+        </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Amount</label>
           <Input
             type="number"
             step={0.01}
-            placeholder="0.08"
+            placeholder="0.00"
             {...register("amount")}
           />
           {errors.amount && (
             <p className="text-sm text-red-500">
               {String(errors.amount.message)}
             </p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Date</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full pl-3 text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(date) => date && setValue("date", date)}
+                disabled={(date) =>
+                  date > new Date() || date < new Date("1900-01-01")
+                }
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {errors.date && (
+            <p className="text-sm text-red-500">{String(errors.date.message)}</p>
           )}
         </div>
         <div className="space-y-2">
@@ -188,8 +223,7 @@ const AddTransactionForm = ({
             <SelectContent>
               {accounts.map((account: Account) => (
                 <SelectItem key={account.id} value={account.id}>
-                  {account.name} ($
-                  {parseFloat(account.balance.toString()).toFixed(2)})
+                  {account.name} (${parseFloat(account.balance.toString()).toFixed(2)})
                 </SelectItem>
               ))}
               <CreateAccount>
@@ -210,69 +244,43 @@ const AddTransactionForm = ({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Category</label>
-        <Select
-          onValueChange={(value) => setValue("category", value)}
-          defaultValue={getValues("category")}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredCategories.map((category: Category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.category && (
-          <p className="text-sm text-red-500">
-            {String(errors.category.message)}
-          </p>
-        )}
-      </div>
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Date</label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full pl-3 text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(date) => date && setValue("date", date)}
-              disabled={(date) =>
-                date > new Date() || date < new Date("1900-01-01")
-              }
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-        {errors.date && (
-          <p className="text-sm text-red-500">{String(errors.date.message)}</p>
-        )}
-      </div>
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Category</label>
+          <Select
+            onValueChange={(value) => setValue("category", value)}
+            defaultValue={getValues("category")}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {filteredCategories.map((category: Category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.category && (
+            <p className="text-sm text-red-500">
+              {String(errors.category.message)}
+            </p>
+          )}
+        </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Description</label>
-        <Input placeholder="Enter description" {...register("description")} />
-        {errors.description && (
-          <p className="text-sm text-red-500">
-            {String(errors.description.message)}
-          </p>
-        )}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Description</label>
+          <Input
+            placeholder="Enter description"
+            {...register("description")}
+          />
+          {errors.description && (
+            <p className="text-sm text-red-500">
+              {String(errors.description.message)}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Recurring Toggle */}

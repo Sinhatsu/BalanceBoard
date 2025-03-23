@@ -3,110 +3,112 @@ import {
   Receipt,
   PieChart,
   CreditCard,
-  Globe,
-  Zap,
+  Brain,
+  Sparkles,
+  FileText,
+  Target,
 } from "lucide-react";
 
 // Stats Data
 export const statsData = [
   {
-    value: "1M+",
-    label: "Global Members",
+    value: "AI-Powered",
+    label: "Smart Insights",
   },
   {
-    value: "$2B+",
-    label: "Transactions Managed",
+    value: "Real-Time",
+    label: "Expense Tracking",
   },
   {
-    value: "99.9%",
-    label: "Uptime",
+    value: "Instant",
+    label: "Receipt OCR",
   },
   {
-    value: "98%",
-    label: "Customer Satisfaction",
+    value: "100%",
+    label: "Free to Start",
   },
 ];
 
 // Features Data
 export const featuresData = [
   {
-    icon: <BarChart3 className="h-8 w-8 text-teal-600" />,
-    title: "Advanced Analytics",
+    icon: <Brain className="h-8 w-8 text-primary" />,
+    title: "AI-Powered Insights",
     description:
-      "Get detailed insights into your spending patterns with AI-powered analytics",
+      "Get personalized spending recommendations powered by Google Gemini AI that help you make smarter financial decisions",
   },
   {
-    icon: <Receipt className="h-8 w-8 text-teal-600" />,
-    title: "Smart Receipt Scanner",
+    icon: <Receipt className="h-8 w-8 text-primary" />,
+    title: "Instant Receipt Scanning",
     description:
-      "Extract data automatically from receipts using advanced AI technology",
+      "Simply snap a photo of your receipt and watch as AI extracts all details automatically - no manual entry needed",
   },
   {
-    icon: <PieChart className="h-8 w-8 text-teal-600" />,
-    title: "Budget Planning",
-    description: "Create and manage budgets with intelligent recommendations",
+    icon: <Target className="h-8 w-8 text-primary" />,
+    title: "Smart Budget Tracking",
+    description: "Set per-category budgets and get real-time alerts before you overspend. Stay on track effortlessly",
   },
   {
-    icon: <CreditCard className="h-8 w-8 text-teal-600" />,
-    title: "Multi-Account Support",
-    description: "Manage multiple accounts and credit cards in one place",
+    icon: <BarChart3 className="h-8 w-8 text-primary" />,
+    title: "Beautiful Analytics",
+    description: "Visualize your financial trends with interactive charts. Compare periods and spot patterns instantly",
   },
   {
-    icon: <Globe className="h-8 w-8 text-teal-600" />,
-    title: "Multi-Currency",
-    description: "Support for multiple currencies with real-time conversion",
+    icon: <CreditCard className="h-8 w-8 text-primary" />,
+    title: "Multiple Accounts",
+    description: "Track savings, checking, credit cards - all in one dashboard. See your complete financial picture",
   },
   {
-    icon: <Zap className="h-8 w-8 text-teal-600" />,
-    title: "Automated Insights",
-    description: "Get automated financial insights and recommendations",
+    icon: <FileText className="h-8 w-8 text-primary" />,
+    title: "Export & Backup",
+    description: "Your data is yours. Export to CSV anytime or import transactions in bulk from other apps",
   },
 ];
 
 // How It Works Data
 export const howItWorksData = [
   {
-    icon: <CreditCard className="h-8 w-8 text-teal-600" />,
-    title: "1. Create Your Account",
+    icon: <Sparkles className="h-8 w-8 text-primary" />,
+    title: "Sign Up Free",
     description:
-      "Get started in minutes with our simple and secure sign-up process",
+      "Create your account in seconds with Google or email. No credit card required, ever",
   },
   {
-    icon: <BarChart3 className="h-8 w-8 text-teal-600" />,
-    title: "2. Track Your Spending",
+    icon: <Receipt className="h-8 w-8 text-primary" />,
+    title: "Add Transactions",
     description:
-      "Automatically categorize and track your transactions in real-time",
+      "Scan receipts, import CSV, or add manually. BalanceBoard automatically categorizes everything",
   },
   {
-    icon: <PieChart className="h-8 w-8 text-teal-600" />,
-    title: "3. Get Insights",
+    icon: <Brain className="h-8 w-8 text-primary" />,
+    title: "Get Smart Insights",
     description:
-      "Receive AI-powered insights and recommendations to optimize your finances",
+      "Watch as AI analyzes your patterns and provides actionable tips to save money and reach your goals",
   },
 ];
 
 // Testimonials Data
 export const testimonialsData = [
   {
-    name: "Grace Thompson",
-    role: "Retail Shop Owner",
-    image: "https://randomuser.me/api/portraits/women/65.jpg",
+    name: "Sarah Chen",
+    role: "Freelance Designer",
+    image: "https://randomuser.me/api/portraits/women/44.jpg",
     quote:
-      "CoinInventory has simplified managing my shop's inventory and finances. I now spend less time on paperwork and more time growing my business.",
+      "The receipt scanning is a game-changer! I used to dread expense tracking, but now I just snap photos and BalanceBoard does the rest. Saved me hours every month.",
   },
   {
-    name: "Liam Parker",
-    role: "Event Planner",
-    image: "https://randomuser.me/api/portraits/men/65.jpg",
+    name: "Michael Rodriguez",
+    role: "Small Business Owner",
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
     quote:
-      "Keeping track of expenses across multiple projects was a headache until I started using CoinInventory. It’s made budgeting and reporting effortless.",
+      "The AI insights helped me identify spending leaks I never noticed. Cut my business expenses by 18% in just 3 months. This tool pays for itself - and it's free!",
   },
   {
-    name: "Sophia Adams",
-    role: "Accountant",
-    image: "https://randomuser.me/api/portraits/women/66.jpg",
+    name: "Emma Thompson",
+    role: "Software Engineer",
+    image: "https://randomuser.me/api/portraits/women/68.jpg",
     quote:
-      "I recommend CoinInventory to all my clients. It’s user-friendly and offers excellent tools for tracking expenses and generating reports efficiently.",
+      "Finally, a finance app that understands developers! The CSV export and category budgets are exactly what I needed. Clean UI, powerful features.",
   },
 ];
 
