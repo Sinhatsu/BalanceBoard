@@ -5,6 +5,7 @@ import EmailTemplate from "@/emails/template";
 import React from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Transaction } from "@prisma/client";
+import { calculateNextRecurringDate } from "../server-utils";
 
 type TransactionStats = {
   totalExpenses: number;
@@ -234,25 +235,6 @@ function isTransactionDue(transaction: Transaction) {
 
   // Compare with nextDue date
   return nextDue <= today;
-}
-
-function calculateNextRecurringDate(date: Date, interval: string) {
-  const next = new Date(date);
-  switch (interval) {
-    case "DAILY":
-      next.setDate(next.getDate() + 1);
-      break;
-    case "WEEKLY":
-      next.setDate(next.getDate() + 7);
-      break;
-    case "MONTHLY":
-      next.setMonth(next.getMonth() + 1);
-      break;
-    case "YEARLY":
-      next.setFullYear(next.getFullYear() + 1);
-      break;
-  }
-  return next;
 }
 
 async function generateFinancialInsights(stats: FinancialStats, month: string) {

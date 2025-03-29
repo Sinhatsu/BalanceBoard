@@ -1,32 +1,12 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
-
-const convertToNumber = (obj: any) => {
-  const serialized = { ...obj };
-  if (obj.balance) {
-    serialized.balance = obj.balance.toNumber();
-  }
-  if (obj.amount) {
-    serialized.amount = obj.amount.toNumber();
-  }
-  return serialized;
-};
+import { getAuthUser, serializeTransaction } from "@/lib/server-utils";
 
 export async function updateDefaultAccount(accountId: string) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await getAuthUser();
 
     await db.account.updateMany({
       where: {
@@ -45,23 +25,15 @@ export async function updateDefaultAccount(accountId: string) {
     });
 
     revalidatePath("/dashboard");
-    return { success: true, data: convertToNumber(account) };
+    return { success: true, data: serializeTransaction(account) };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
 
 export async function getAccountWithTransactions(accountId: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
+  const user = await getAuthUser();
+  
   const account = await db.account.findUnique({
     where: {
       id: accountId,
@@ -80,21 +52,14 @@ export async function getAccountWithTransactions(accountId: string) {
   });
   if (!account) return null;
   return {
-    ...convertToNumber(account),
-    transactions: account.transactions.map(convertToNumber),
+    ...serializeTransaction(account),
+    transactions: account.transactions.map(serializeTransaction),
   };
 }
 
 export async function bulkDeleteTransactions(transactionIds: string[]) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
 
     // Get transactions to calculate balance changes
     const transactions = await db.transaction.findMany({
@@ -151,11 +116,8 @@ export async function bulkDeleteTransactions(transactionIds: string[]) {
 
 export async function deleteAccount(accountId: string) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
     const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+      where: { clerkUserId: (await getAuthUser()).clerkUserId },
       include: {
         accounts: true,
       },

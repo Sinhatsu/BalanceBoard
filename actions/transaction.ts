@@ -7,13 +7,9 @@ import { request } from "@arcjet/next";
 import aj from "@/lib/arcjet";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Transaction } from "@prisma/client";
+import { getAuthUser, serializeTransaction, calculateNextRecurringDate } from "@/lib/server-utils";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
-const serializeAmount = (obj: any) => ({
-  ...obj,
-  amount: obj.amount.toNumber(),
-});
 
 // Create Transaction
 export async function createTransaction(data: any) {
@@ -47,13 +43,7 @@ export async function createTransaction(data: any) {
       throw new Error("Request blocked");
     }
 
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await getAuthUser();
 
     const account = await db.account.findUnique({
       where: {
@@ -94,7 +84,7 @@ export async function createTransaction(data: any) {
     revalidatePath("/dashboard");
     revalidatePath(`/account/${transaction.accountId}`);
 
-    return { success: true, data: serializeAmount(transaction) };
+    return { success: true, data: serializeTransaction(transaction) };
   } catch (error: any) {
     throw new Error(error.message);
   }
@@ -102,14 +92,7 @@ export async function createTransaction(data: any) {
 
 // Get Transaction
 export async function getTransaction(id: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
-
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
+  const user = await getAuthUser();
 
   const transaction = await db.transaction.findUnique({
     where: {
@@ -120,20 +103,13 @@ export async function getTransaction(id: string) {
 
   if (!transaction) throw new Error("Transaction not found");
 
-  return serializeAmount(transaction);
+  return serializeTransaction(transaction);
 }
 
 // Update/ Edit Transaction
 export async function updateTransaction(id: string, data: Transaction) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
 
     // Get original transaction to calculate balance change
     const originalTransaction = await db.transaction.findUnique({
@@ -191,7 +167,7 @@ export async function updateTransaction(id: string, data: Transaction) {
     revalidatePath("/dashboard");
     revalidatePath(`/account/${data.accountId}`);
 
-    return { success: true, data: serializeAmount(transaction) };
+    return { success: true, data: serializeTransaction(transaction) };
   } catch (error: any) {
     throw new Error(error.message);
   }
@@ -260,26 +236,4 @@ export async function scanReceipt(file: any) {
     console.error("Error scanning receipt:", error);
     throw new Error("Failed to scan receipt");
   }
-}
-
-// Calculate next recurring date
-function calculateNextRecurringDate(startDate: Date, interval: string) {
-  const date = new Date(startDate);
-
-  switch (interval) {
-    case "DAILY":
-      date.setDate(date.getDate() + 1);
-      break;
-    case "WEEKLY":
-      date.setDate(date.getDate() + 7);
-      break;
-    case "MONTHLY":
-      date.setMonth(date.getMonth() + 1);
-      break;
-    case "YEARLY":
-      date.setFullYear(date.getFullYear() + 1);
-      break;
-  }
-
-  return date;
 }

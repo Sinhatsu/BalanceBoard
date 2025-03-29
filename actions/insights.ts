@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getAuthUser } from "@/lib/server-utils";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -19,14 +19,7 @@ interface SpendingInsight {
  */
 export async function getSpendingInsights(): Promise<SpendingInsight[]> {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
 
     // Get last 3 months of transactions
     const threeMonthsAgo = new Date();

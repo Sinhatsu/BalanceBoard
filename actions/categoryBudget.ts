@@ -1,34 +1,23 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { getAuthUser, getCurrentMonthRange, serializeTransaction } from "@/lib/server-utils";
 
 /**
  * Get all category budgets for the current user
  */
 export async function getCategoryBudgets() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
 
     const categoryBudgets = await db.categoryBudget.findMany({
       where: { userId: user.id },
       orderBy: { category: "asc" },
     });
 
-    return categoryBudgets.map((budget: any) => ({
-      ...budget,
-      amount: budget.amount.toNumber(),
-    }));
+    return categoryBudgets.map((budget: any) => serializeTransaction(budget));
   } catch (error) {
-    console.error("Error fetching category budgets:", error);
     throw error;
   }
 }
@@ -38,27 +27,10 @@ export async function getCategoryBudgets() {
  */
 export async function getCategorySpending() {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
 
     // Get current month date range
-    const currentDate = new Date();
-    const startOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1
-    );
-    const endOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0
-    );
+    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
 
     // Get all expenses for current month
     const expenses = await db.transaction.findMany({
@@ -91,7 +63,6 @@ export async function getCategorySpending() {
 
     return spendingByCategory;
   } catch (error) {
-    console.error("Error fetching category spending:", error);
     throw error;
   }
 }
@@ -101,14 +72,7 @@ export async function getCategorySpending() {
  */
 export async function setCategoryBudget(category: string, amount: number) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
 
     if (amount <= 0) {
       throw new Error("Budget amount must be greater than 0");
@@ -134,10 +98,9 @@ export async function setCategoryBudget(category: string, amount: number) {
     revalidatePath("/dashboard");
     return {
       success: true,
-      data: { ...budget, amount: budget.amount.toNumber() },
+      data: serializeTransaction(budget),
     };
   } catch (error: any) {
-    console.error("Error setting category budget:", error);
     return { success: false, error: error.message };
   }
 }
@@ -147,14 +110,7 @@ export async function setCategoryBudget(category: string, amount: number) {
  */
 export async function deleteCategoryBudget(category: string) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) throw new Error("User not found");
+    const user = await getAuthUser();
 
     await db.categoryBudget.delete({
       where: {
@@ -168,7 +124,6 @@ export async function deleteCategoryBudget(category: string) {
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error: any) {
-    console.error("Error deleting category budget:", error);
     return { success: false, error: error.message };
   }
 }

@@ -95,7 +95,6 @@ const AddTransactionForm = ({
   );
 
   const onSubmit = (data: any) => {
-    console.log(data);
     const formData = {
       ...data,
       amount: parseFloat(data.amount),

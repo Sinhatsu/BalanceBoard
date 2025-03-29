@@ -7,7 +7,7 @@ const ACCOUNT_ID = "a0ab3dbe-106d-4169-87d6-d05404cbc7d3";
 const USER_ID = "617b8d6d-f9e9-4fe1-8f8c-105c9a2784a2";
 
 // Categories with their typical amount ranges
-const CATEGORIES: any = {
+const CATEGORIES: Record<string, Array<{ name: string; range: [number, number] }>> = {
   INCOME: [
     { name: "salary", range: [5000, 8000] },
     { name: "freelance", range: [1000, 3000] },
@@ -29,12 +29,12 @@ const CATEGORIES: any = {
 };
 
 // Helper to generate random amount within a range
-function getRandomAmount(min: any, max:any) {
+function getRandomAmount(min: number, max: number): number {
   return Number((Math.random() * (max - min) + min).toFixed(2));
 }
 
 // Helper to get random category with amount
-function getRandomCategory(type:any) {
+function getRandomCategory(type: "INCOME" | "EXPENSE"): { category: string; amount: number } {
   const categories = CATEGORIES[type];
   const category = categories[Math.floor(Math.random() * categories.length)];
   const amount = getRandomAmount(category.range[0], category.range[1]);
@@ -44,7 +44,7 @@ function getRandomCategory(type:any) {
 export async function seedTransactions() {
   try {
     // Generate 90 days of transactions
-    const transactions: any = [];
+    const transactions: Array<any> = [];
     let totalBalance = 0;
 
     for (let i = 90; i >= 0; i--) {
@@ -102,8 +102,7 @@ export async function seedTransactions() {
       success: true,
       message: `Created ${transactions.length} transactions`,
     };
-  } catch (error:any) {
-    console.error("Error seeding transactions:", error);
+  } catch (error: any) {
     return { success: false, error: error.message };
   }
 }

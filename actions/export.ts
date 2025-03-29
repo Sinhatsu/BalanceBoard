@@ -1,23 +1,15 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/prisma";
+import { getAuthUser } from "@/lib/server-utils";
+import { auth } from "@clerk/nextjs/server";
 
 /**
  * Export all transactions to CSV format
  */
 export async function exportTransactionsToCSV(accountId?: string) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
-    });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
+    const user = await getAuthUser();
 
     // Fetch transactions with account details
     const transactions = await db.transaction.findMany({
@@ -91,11 +83,8 @@ export async function exportTransactionsToCSV(accountId?: string) {
  */
 export async function parseTransactionCSV(csvContent: string) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
     const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+      where: { clerkUserId: (await getAuthUser()).clerkUserId },
       include: {
         accounts: true,
       },
@@ -223,12 +212,6 @@ export async function parseTransactionCSV(csvContent: string) {
  */
 export async function importTransactions(transactions: any, targetAccountId?: string) {
   try {
-    console.log("=== IMPORT DEBUG ===");
-    console.log("Received transactions:", transactions);
-    console.log("Type:", typeof transactions);
-    console.log("Is Array:", Array.isArray(transactions));
-    console.log("Length:", transactions?.length);
-    
     if (!transactions) {
       throw new Error("No transactions data provided");
     }
@@ -241,11 +224,8 @@ export async function importTransactions(transactions: any, targetAccountId?: st
       throw new Error("No transactions to import");
     }
 
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
     const user = await db.user.findUnique({
-      where: { clerkUserId: userId },
+      where: { clerkUserId: (await getAuthUser()).clerkUserId },
       include: {
         accounts: true,
       },
@@ -267,10 +247,6 @@ export async function importTransactions(transactions: any, targetAccountId?: st
         ? targetAccountId
         : fallbackAccountId;
 
-    console.log("User found:", user.id);
-    console.log("Using account:", accountIdToUse);
-    console.log("First transaction to import:", transactions[0]);
-
     // Import transactions and update account balances
     const result = await db.$transaction(async (tx: any) => {
       const imported = [];
@@ -278,18 +254,14 @@ export async function importTransactions(transactions: any, targetAccountId?: st
       for (const transaction of transactions) {
         if (!transaction) continue;
         
-        console.log("Processing transaction:", transaction);
-        
         // Validate and clean the data
         const transactionDate = new Date(transaction.date);
         if (isNaN(transactionDate.getTime())) {
-          console.error("Invalid date:", transaction.date);
           continue;
         }
         
         const amount = parseFloat(transaction.amount);
         if (isNaN(amount)) {
-          console.error("Invalid amount:", transaction.amount);
           continue;
         }
         
@@ -308,16 +280,12 @@ export async function importTransactions(transactions: any, targetAccountId?: st
             userId: user.id,
           },
         });
-        
-        console.log("Created transaction:", newTransaction.id);
 
         // Update account balance
         const balanceChange =
           transaction.type === "EXPENSE"
             ? -amount
             : amount;
-
-        console.log("Updating balance by:", balanceChange);
 
         await tx.account.update({
           where: { id: accountIdToUse },
@@ -328,7 +296,6 @@ export async function importTransactions(transactions: any, targetAccountId?: st
           },
         });
 
-        console.log("Balance updated successfully");
         imported.push(newTransaction);
       }
 
@@ -341,8 +308,6 @@ export async function importTransactions(transactions: any, targetAccountId?: st
       message: `Successfully imported ${result.length} transaction(s)`,
     };
   } catch (error: any) {
-    console.error("Import error:", error);
-    
     // Extract only the message to avoid serialization issues
     const errorMessage = error?.message || error?.toString() || "Failed to import transactions";
     

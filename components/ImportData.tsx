@@ -88,13 +88,7 @@ export default function ImportData({ accounts }: ImportDataProps) {
 
     setIsProcessing(true);
     try {
-      console.log("=== CLIENT SIDE DEBUG ===");
-      console.log("Parsed data:", parsedData);
-      console.log("Transactions:", parsedData.transactions);
-      console.log("First transaction:", parsedData.transactions[0]);
-      
       // Deep clone and ensure all values are serializable
-      // Don't send accountId - server will use the user's default account
       const cleanTransactions = parsedData.transactions.map((t: any) => {
         const cleaned = {
           date: String(t.date || ""),
@@ -117,10 +111,6 @@ export default function ImportData({ accounts }: ImportDataProps) {
         
         return cleaned;
       });
-      
-      console.log("Clean transactions:", cleanTransactions);
-      console.log("First clean transaction:", cleanTransactions[0]);
-      console.log("Stringified:", JSON.stringify(cleanTransactions[0]));
       
       // Pass the cleaned array and selected account
       const result = await importTransactions(cleanTransactions, targetAccountId);
