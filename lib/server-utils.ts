@@ -1,5 +1,3 @@
-"use server";
-
 import { auth } from "@clerk/nextjs/server";
 import { db } from "./prisma";
 import { User } from "@prisma/client";
