@@ -108,6 +108,7 @@ export default function LandingPageSections() {
                         alt={testimonial.name}
                         width={64}
                         height={64}
+                        unoptimized
                         className="rounded-full border-2 border-background relative z-10"
                       />
                     </div>
