@@ -51,13 +51,6 @@ const Hero: React.FC = () => {
                 {/* Dashboard Preview Card */}
                 <div className="max-w-6xl mx-auto animate-float">
                     <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-black/40 backdrop-blur-xl">
-                        {/* Window Controls */}
-                        <div className="absolute top-4 left-6 flex gap-2 z-20">
-                            <div className="w-3 h-3 rounded-full bg-red-400/80" />
-                            <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
-                            <div className="w-3 h-3 rounded-full bg-green-400/80" />
-                        </div>
-
                         <div className="p-8 pt-20 md:p-12 md:pt-24">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                                 <div className="bg-white/60 dark:bg-black/60 rounded-2xl p-6 border border-primary/10 shadow-sm">
