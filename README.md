@@ -43,7 +43,7 @@
 - Set overall monthly budgets
 - Track spending progress with visual indicators
 - Budget alerts via email when thresholds are reached
-- Per-category budget tracking (coming soon!)
+- Per-category budget tracking with progress bars
 
 ### 💡 **AI-Powered Insights**
 
@@ -129,7 +129,7 @@ The goal is to go beyond a tutorial app and feel like a **real product**: fast, 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/Sinhatsu/CoinInventory.git
+   git clone https://github.com/Sinhatsu/BalanceBoard.git
    cd BalanceBoard
    ```
 
@@ -281,19 +281,19 @@ BalanceBoard/
 
 ### Dashboard
 
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+Screenshot)
+![Dashboard](./public/dashboard.png)
 
 ### Transaction Management
 
-![Transactions](https://via.placeholder.com/800x400?text=Transaction+Page)
+![Transactions](./public/transaction.png)
 
 ### Receipt Scanner
 
-![Receipt Scanner](https://via.placeholder.com/800x400?text=Receipt+Scanner)
+![Receipt Scanner](./public/receipt.png)
 
 ### Analytics
 
-![Analytics](https://via.placeholder.com/800x400?text=Analytics+Charts)
+![Analytics](./public/analytics.png)
 
 ---
 
@@ -336,8 +336,8 @@ BalanceBoard/
 - [x] Multi-account support
 - [x] Recurring transactions
 - [x] Budget tracking
-- [ ] **Per-category budgets**
-- [ ] **Enhanced AI insights and recommendations**
+- [x] **Per-category budgets**
+- [x] **AI spending insights and recommendations**
 
 ---
 
