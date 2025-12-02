@@ -35,11 +35,14 @@ export default async function DashboardPage() {
       <div className="rounded-2xl bg-card p-8 border border-border shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
           <div>
+            <p className="text-primary font-medium text-sm uppercase tracking-wider mb-1">
+              {new Date().toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric" })}
+            </p>
             <h1 className="text-3xl md:text-4xl font-bold mb-2 text-foreground">
-              Welcome Back! 👋
+              Your Financial Overview 💰
             </h1>
             <p className="text-muted-foreground text-lg">
-              Here's your financial snapshot
+              Track, manage, and grow your wealth
             </p>
           </div>
           {accounts && accounts.length > 0 && (

@@ -205,9 +205,20 @@ export function DashboardOverview({
                   <Tooltip
                     formatter={(value) => `$${Number(value).toFixed(2)}`}
                     contentStyle={{
-                      backgroundColor: "hsl(var(--popover))",
+                      backgroundColor: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
-                      borderRadius: "var(--radius)",
+                      borderRadius: "8px",
+                      color: "hsl(var(--card-foreground))",
+                      padding: "12px 16px",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+                    }}
+                    itemStyle={{
+                      color: "hsl(var(--card-foreground))",
+                    }}
+                    labelStyle={{
+                      color: "hsl(var(--card-foreground))",
+                      fontWeight: "600",
+                      marginBottom: "4px",
                     }}
                   />
                   <Legend />

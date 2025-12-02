@@ -2,29 +2,30 @@
 
 import { db } from "@/lib/prisma";
 import { subDays } from "date-fns";
+import { getAuthUser } from "@/lib/server-utils";
 
-const ACCOUNT_ID = "a0ab3dbe-106d-4169-87d6-d05404cbc7d3";
-const USER_ID = "617b8d6d-f9e9-4fe1-8f8c-105c9a2784a2";
-
-// Categories with their typical amount ranges
+// Categories with their typical amount ranges (in dollars)
 const CATEGORIES: Record<string, Array<{ name: string; range: [number, number] }>> = {
   INCOME: [
-    { name: "salary", range: [5000, 8000] },
-    { name: "freelance", range: [1000, 3000] },
-    { name: "investments", range: [500, 2000] },
-    { name: "other-income", range: [100, 1000] },
+    { name: "salary", range: [3000, 6000] },
+    { name: "freelance", range: [500, 2000] },
+    { name: "investments", range: [200, 1000] },
+    { name: "business", range: [300, 1500] },
+    { name: "other-income", range: [50, 500] },
   ],
   EXPENSE: [
-    { name: "housing", range: [1000, 2000] },
-    { name: "transportation", range: [100, 500] },
-    { name: "groceries", range: [200, 600] },
-    { name: "utilities", range: [100, 300] },
-    { name: "entertainment", range: [50, 200] },
-    { name: "food", range: [50, 150] },
-    { name: "shopping", range: [100, 500] },
-    { name: "healthcare", range: [100, 1000] },
-    { name: "education", range: [200, 1000] },
-    { name: "travel", range: [500, 2000] },
+    { name: "housing", range: [500, 1500] },
+    { name: "transportation", range: [50, 200] },
+    { name: "groceries", range: [100, 400] },
+    { name: "utilities", range: [50, 150] },
+    { name: "entertainment", range: [20, 100] },
+    { name: "food", range: [30, 150] },
+    { name: "shopping", range: [50, 300] },
+    { name: "healthcare", range: [30, 500] },
+    { name: "education", range: [50, 500] },
+    { name: "travel", range: [100, 1000] },
+    { name: "personal", range: [20, 100] },
+    { name: "bills", range: [50, 200] },
   ],
 };
 
@@ -43,9 +44,24 @@ function getRandomCategory(type: "INCOME" | "EXPENSE"): { category: string; amou
 
 export async function seedTransactions() {
   try {
+    // Get authenticated user
+    const user = await getAuthUser();
+    
+    // Get user's default account
+    const account = await db.account.findFirst({
+      where: {
+        userId: user.id,
+        isDefault: true,
+      },
+    });
+
+    if (!account) {
+      return { success: false, error: "No default account found. Please create an account first." };
+    }
+
     // Generate 90 days of transactions
     const transactions: Array<any> = [];
-    let totalBalance = 0;
+    let totalBalance = account.balance.toNumber(); // Start with existing balance
 
     for (let i = 90; i >= 0; i--) {
       const date = subDays(new Date(), i);
@@ -62,14 +78,12 @@ export async function seedTransactions() {
           id: crypto.randomUUID(),
           type,
           amount,
-          description: `${
-            type === "INCOME" ? "Received" : "Paid for"
-          } ${category}`,
+          description: `${type === "INCOME" ? "Received" : "Paid for"} ${category}`,
           date,
           category,
           status: "COMPLETED",
-          userId: USER_ID,
-          accountId: ACCOUNT_ID,
+          userId: user.id,
+          accountId: account.id,
           createdAt: date,
           updatedAt: date,
         };
@@ -81,9 +95,9 @@ export async function seedTransactions() {
 
     // Insert transactions in batches and update account balance
     await db.$transaction(async (tx) => {
-      // Clear existing transactions
+      // Clear existing transactions for this account
       await tx.transaction.deleteMany({
-        where: { accountId: ACCOUNT_ID },
+        where: { accountId: account.id },
       });
 
       // Insert new transactions
@@ -93,14 +107,14 @@ export async function seedTransactions() {
 
       // Update account balance
       await tx.account.update({
-        where: { id: ACCOUNT_ID },
+        where: { id: account.id },
         data: { balance: totalBalance },
       });
     });
 
     return {
       success: true,
-      message: `Created ${transactions.length} transactions`,
+      message: `Created ${transactions.length} transactions for account "${account.name}"`,
     };
   } catch (error: any) {
     return { success: false, error: error.message };
