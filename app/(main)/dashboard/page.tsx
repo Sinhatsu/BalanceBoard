@@ -14,6 +14,8 @@ import { getCategoryBudgetsWithSpending } from "@/actions/categoryBudget";
 import SpendingInsights from "@/components/SpendingInsights";
 import { getSpendingInsights } from "@/actions/insights";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const [accounts, transactions, categoryBudgets, insights] = await Promise.all([
     getUserAccounts(),

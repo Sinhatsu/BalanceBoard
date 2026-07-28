@@ -9,6 +9,8 @@ interface PageProps {
       [key: string]: string | string[] | undefined;
   }>;
  }
+export const dynamic = "force-dynamic";
+
 export default async function AccountPage({
   params,
 }: PageProps) {
