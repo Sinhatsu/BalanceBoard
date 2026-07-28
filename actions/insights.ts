@@ -74,7 +74,10 @@ export async function getSpendingInsights(): Promise<SpendingInsight[]> {
     }
 
     return insights;
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE" || error?.message?.includes("DYNAMIC_SERVER_USAGE")) {
+      throw error;
+    }
     console.error("Error getting spending insights:", error);
     // Return a friendly fallback instead of crashing
     return [

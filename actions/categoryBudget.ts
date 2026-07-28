@@ -145,7 +145,10 @@ export async function getCategoryBudgetsWithSpending() {
         ? (spending[budget.category] / budget.amount) * 100
         : 0,
     }));
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.digest === "DYNAMIC_SERVER_USAGE" || error?.message?.includes("DYNAMIC_SERVER_USAGE")) {
+      throw error;
+    }
     console.error("Error fetching category budgets with spending:", error);
     throw error;
   }
